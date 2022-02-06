@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -12,22 +13,32 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.Result;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+
+import java.util.HashMap;
 
 import androidmads.library.qrgenearator.QRGContents;
 import androidmads.library.qrgenearator.QRGEncoder;
 
 public class MainActivity extends AppCompatActivity {
-     EditText ed;
+     public static EditText ed;
     public static TextView edt;
     Button createBtn,scanBtn;
     ImageView qrImage;
     QRGEncoder qrgEncoder;
+    DatabaseReference dbref;
+
 
 
     @Override
@@ -39,11 +50,16 @@ public class MainActivity extends AppCompatActivity {
         createBtn=findViewById(R.id.button);
         scanBtn=findViewById(R.id.button2);
         qrImage=findViewById(R.id.imageView6);
+        dbref = FirebaseDatabase.getInstance().getReference().child("generate bill");
 
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String data =ed.getText().toString();
+
+                dbref.push().setValue(data);
+                Toast.makeText(MainActivity.this, "Data Update.", Toast.LENGTH_SHORT).show();
+
                 MultiFormatWriter writer =new MultiFormatWriter();
 
 
@@ -72,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
 
 
             }
+
+
+
         });
         scanBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,5 +101,20 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    public void handleResult(Result rawResult) {
+        MainActivity.ed.setText(rawResult.getText());
+        String data = rawResult.getText().toString();
+        dbref.push().setValue(data).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Toast.makeText(MainActivity.this, "Data Update.", Toast.LENGTH_SHORT).show();
+                onBackPressed();
+            }
+        });
+
+
+    }
+
 }
 

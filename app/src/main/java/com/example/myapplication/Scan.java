@@ -37,7 +37,7 @@ public class Scan extends AppCompatActivity implements ZXingScannerView.ResultHa
         super.onCreate(savedInstanceState);
         sView= new ZXingScannerView(this);
         setContentView(sView);
-        dbref = FirebaseDatabase.getInstance().getReference("QrData");
+        dbref = FirebaseDatabase.getInstance().getReference("Scan bill");
 
 
         Dexter.withContext(getApplicationContext()).withPermission(Manifest.permission.CAMERA).withListener(new PermissionListener() {
